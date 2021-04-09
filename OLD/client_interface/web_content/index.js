@@ -4,11 +4,11 @@ var world;
 
 var elem;
 function renderLoop() {
+    requestAnimationFrame(renderLoop);
     var n1 = Date.now();
     world.renderLoop();
-    requestAnimationFrame(renderLoop);
     var n2 = Date.now();
-    elem.innerText = "Time: " + (n2 - n1) + "ms";
+    elem.innerText = "Time: " + (n2 - n1) + "ms, View: " + `${world.viewport.x},${world.viewport.y},${world.viewport.width},${world.viewport.height}, zoom = ${world.viewport.zoom}`;
 }
 //dont init until loaded
 window.onload = () => {

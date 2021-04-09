@@ -1,8 +1,6 @@
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
 
-//var map_renderer = require('./map_renderer.js');
-var fog_of_war = require('./shared/TileGrid');
 
 function createWindow () {
   const win = new BrowserWindow({
@@ -19,12 +17,7 @@ function createWindow () {
   win.maximize();
   win.setFullScreen(true);
   win.webContents.openDevTools();
-  win.loadFile('./client_interface/web_content/index.html')
-  var j = JSON.stringify(fog_of_war.tile_grid);
-  var now = Date.now();
-  var n2 = Date.now();
-
-  console.log(n2 - now + " ms");
+  win.loadFile('./web/client/index.html')
 
 }
 

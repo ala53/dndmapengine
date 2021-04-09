@@ -26,8 +26,11 @@ module.exports = class ColorEffectRenderer extends EffectTypeRenderer {
 
     }
     drawTile(tile, x, y, width, height) {
+        this._canvasContext.globalAlpha = _a;
         this._canvasContext.fillStyle = _color;
         this._canvasContext.fillRect(x, y, width, height);
+        this._canvasContext.fillStyle = null;
+        this._canvasContext.globalAlpha = 1;
     }
 
     isOpaque(tile) {

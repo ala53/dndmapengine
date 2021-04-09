@@ -6,10 +6,9 @@ class TileObject {
     _x = 0;
     _y = 0;
     _occupier = null;
-    _image = Constants.blankTileImage;
+    _image = null;
     _state = 0;
     _tileGrid;
-    _renderEveryFrame = false;
     _effects = {
         //on fire?
         fire: false,
@@ -54,9 +53,7 @@ class TileObject {
     get x() { return this._x; }
     get y() { return this._y; }
 
-    get renderEveryFrame() { return this._renderEveryFrame; }
-    set renderEveryFrame(renderAlways) { this._renderEveryFrame = renderAlways; }
-    get fowState() { return state; }
+    get fowState() { return this._state; }
     set fowState(state) {
         if (state === "visible")
             state = 2;
@@ -71,7 +68,7 @@ class TileObject {
     }
 
     getEffect(effect) {
-        return (this._effects[state] == true);
+        return (this._effects[effect] == true);
     }
     /**
      * 

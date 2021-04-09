@@ -10,11 +10,65 @@ module.exports = class FogOfWarRenderer extends LayerRenderer {
     _isUpdating = false;
     _currentX = 0;
     _currentY = 0;
+    //Milliseconds taken to fade an uncovered tile
+    _timeToFadeUncovered = 20000;
+    //Milliseconds for the first portion of the fade process
+    _rapidFadeTime = 1000;
     renderLoop(deltaTime) {
     }
 
     drawTile(tile, x, y, width, height) {
+        var color = null;
+        if (tile.fowState == 0)
+            color = "black";
+        else if (tile.fowState == 1){
+            var alpha = 0.6;
+            if (tile.FOWLASTUNCOVERED > 0) {
+                //compute when the tile was last uncovered and lerp the 
+                //alpha between 0.3 and 0.8
+                var diffMs = Date.now() - tile.FOWLASTUNCOVERED;
+                //Rapidly fade the first third
+                //60s to lerp
+                var percentageLong = Math.min(Math.max(diffMs / this._timeToFadeUncovered, 0), 1);
+                var percentageShort = Math.min(Math.max(diffMs / this._rapidFadeTime, 0), 1);
+                alpha = this._lerp(0, 0.3, percentageShort) + (0.5 * percentageLong);
+            }
+            color = `rgba(0.5,0.5,0.5,${alpha})`;
+        }
+        else if (tile.fowState == 2) 
+            return; //Uncovered, no fog of war
+        
+        this._canvasContext.fillStyle = color;
+        this._canvasContext.fillRect(x,y,width, height);
+        this._canvasContext.fillStyle = null;
+    }
     
+    _lerp(v0, v1, t) {
+        return v0*(1-t)+v1*t
+    }
+    
+
+    isOpaque(tile) {
+        //if (tile.fowState == 0) return true;
+        return false;
+    }
+
+    redrawEveryFrame(tile) {
+        //For performance, bail early
+        if (tile.fowState == 0 || tile.fowState == 2)
+        return false;
+
+        if (tile.FOWLASTUNCOVERED > 0) {
+            //compute when the tile was last uncovered and lerp the 
+            //alpha between 0.3 and 0.7
+            var diffMs = Date.now() - tile.FOWLASTUNCOVERED;
+            //60s to lerp
+            var percentage = Math.min(Math.max(diffMs / this._timeToFadeUncovered, 0), 1);
+            if (percentage >= 1) return false;
+        }
+
+        return true;
+
     }
 
     deferredWork(timeBudget) {

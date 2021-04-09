@@ -27,11 +27,9 @@ class ImageCache {
     initialize(loadedCallback) {
         //Query all files in the web_content/images folder and load them
         fs.readdir(Constants.imageBaseDir, (err, files) => {
-            console.log(files);
             if (err) throw err;
             files.forEach(fPath => {
                 fPath = path.resolve(path.join(Constants.imageBaseDir, fPath));
-                console.log("loading " + fPath);
                 //load the image
                 // Create an image object. This is not attached to the DOM and is not part of the page.
                 var image = new Image();

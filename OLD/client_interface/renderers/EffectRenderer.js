@@ -1,8 +1,8 @@
-const FireEffect = require("./effects/FireEffect");
-var LayerRenderer = require("./LayerRenderer");
+const LayerRenderer = require("./LayerRenderer");
 const { TileGrid, TileObject } = require("../../shared/TileGrid");
 const SpriteSheetImageEffectRenderer = require("./effects/SpriteSheetImageEffectRenderer");
 const EffectTypeRenderer = require("./effects/EffectTypeRenderer");
+const FireEffectRenderer = require("./effects/FireEffectRenderer");
 
 class EffectType {
     /**
@@ -25,8 +25,8 @@ module.exports = class EffectRenderer extends LayerRenderer {
 
     constructor(tileGrid, worldRenderer, canvasContext) {
         super(tileGrid, worldRenderer, canvasContext);
-        _effects = [
-            new EffectType("fire", new SpriteSheetImageEffectRenderer(tileGrid, worldRenderer, canvasContext, "/images/effects/fire.png", 4, 4, 4)),
+        this._effects = [
+            new EffectType("fire", new FireEffectRenderer(tileGrid, worldRenderer, canvasContext, "fire_sprite_sheet.png", 8, 8, 10)),
         ];
         //Build the keyed lookup table
         this._buildKeyTable();
@@ -34,7 +34,7 @@ module.exports = class EffectRenderer extends LayerRenderer {
     }
 
     renderLoop(deltaTime) {
-        this._effects.forEach((e) => e.renderLoop(deltaTime));
+        this._effects.forEach((e) => e.renderer.renderLoop(deltaTime));
     }
 
     drawTile(tile, x, y, width, height) {
@@ -54,7 +54,7 @@ module.exports = class EffectRenderer extends LayerRenderer {
         for (var i = minLayerToRender; i < this._effects.length; i++) {
             var effect = this._effects[i];
             if (effect.renderer.isRendered(tile.getEffect(effect.name), tile))
-                this._layers[i].drawTile(tile, x, y, width, height);
+                this._effects[i].renderer.drawTile(tile, x, y, width, height);
         }
     }
 
@@ -79,15 +79,24 @@ module.exports = class EffectRenderer extends LayerRenderer {
     isOpaque(tile) {
         var opaque = false;
         for (var i in this._effects) {
-            var effect= this._effects[i];
-            if (!effect.isRendered(tile.getEffect(effect.name), tile))
+            var effect = this._effects[i];
+            if (!effect.renderer.isRendered(tile.getEffect(effect.name), tile))
                 continue;
-            if (effect.isOpaque(tile)) {
+            if (effect.renderer.isOpaque(tile)) {
                 opaque = true;
                 break;
             }
         }
 
         return opaque;
+    }
+
+    redrawEveryFrame(tile) {
+        for (var i in this._effects) {
+            var effect= this._effects[i];
+            if (effect.renderer.isRenderedEveryFrame(tile, tile.getEffect(effect.name)))
+            return true;
+        }
+        return false;
     }
 }
