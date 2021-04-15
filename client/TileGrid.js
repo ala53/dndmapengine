@@ -5,6 +5,9 @@ class Tile {
     fogOfWarState = TileFogOfWarState.hidden;
     x = 0;
     y = 0;
+    //The world object occupying this space
+    occupier;
+    get occupied() { return this.occupier && this.occupier.active; }
 }
 
 class WorldObject {
@@ -22,13 +25,31 @@ class TileGrid {
     width = 0;
     height = 0;
 
+    /**
+     * @type {Tile[][]}
+     */
+    grid;
+
     constructor(width, height) {
         this.width = width;
         this.height = height; 
+
+        //Generate the grid
+        this.grid = new Array(width);
+        for (var x = 0; x < this.grid.length; x++)
+        {
+            this.grid[x] = new Array(height);
+            for (var y = 0; y < this.grid[x].length; y++) {
+              var tile = new Tile();
+              tile.x = x;
+              tile.y = y;
+              this.grid[x][y] = tile;
+            }
+        }
     }
 
     getTile(x,y) {
-        return new Tile();
+        return this.grid[x][y];
     }
 }
 module.exports = { TileGrid, Tile, WorldObject, TileFogOfWarState }

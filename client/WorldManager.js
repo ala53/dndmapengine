@@ -8,6 +8,7 @@ const TouchTracker = require("./TouchTracker");
 const UIRenderer = require("./UIRenderer");
 const { TileGrid, Tile, WorldObject, TileFogOfWarState } = require("./TileGrid");
 const FogOfWarRenderer = require("./Renderers/FogOfWarRenderer");
+const WorldObjectHandler = require("./WorldObjectHandler");
 
 class WorldViewport {
     tileWidthPx = 1;
@@ -52,6 +53,7 @@ module.exports = class WorldManager {
 
     tileGrid;
     map = MapInfo;
+    worldObjectHandler;
 
     imageCache;
     viewport = new WorldViewport();
@@ -68,9 +70,11 @@ module.exports = class WorldManager {
         this.uiElement = uiElement;
         this.uiRenderer = new UIRenderer(uiElement);
         this.tileGrid = new TileGrid(this.map.width, this.map.height);
+        this.worldObjectHandler = new WorldObjectHandler(this);
         //Initialize
         this.touchTracker.register(canvasElement);
         this.imageCache.initialize();
+        this.worldObjectHandler.register();
         //Set up renderers, ordered
 
         this.renderers.push(new MapRenderer(this));

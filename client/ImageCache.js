@@ -26,7 +26,6 @@ class ImageCache {
         var dir = "./map/images";
         //Query all files in the web_content/images folder and load them
         fs.readdir(dir, (err, files) => {
-            console.log(files);
             if (err) throw err;
             files.forEach(fPath => {
                 fPath = path.resolve(path.join(dir, fPath));

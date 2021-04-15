@@ -49,7 +49,9 @@ module.exports =
                     else if (untrackedTouch.ignorePoint) {
                         //For explicitly untracked points that are on the touch screen, draw a light gray bubble
                         ctx.strokeStyle = TouchPointRenderer.ignoredPointColor;
+                        ctx.beginPath();
                         ctx.arc(untrackedTouch.x, untrackedTouch.y, arcRadius / 2, 0, 2 * Math.PI);
+                        ctx.stroke();
                     }
                 }
             }
@@ -72,14 +74,13 @@ module.exports =
                     var adj = (trackedObj.speculativeX - trackedObj.x);
                     var startAngle =
                         Math.atan(opp / adj);
-                    if (adj > 0) startAngle += Math.PI;
+                    if (adj >= 0) startAngle += Math.PI;
 
                     //Then compute how far short to draw the line, so it lines up with the edge of the arc
                     var shortX = 0;
                     var shortY = 0;
                     shortX = Math.cos(startAngle) * arcRadius;
                     shortY = Math.sin(startAngle) * arcRadius;
-
                     //Draw the speculative line
                     ctx.beginPath();
                     ctx.moveTo(trackedObj.x - shortX, trackedObj.y - shortY);

@@ -52,7 +52,7 @@ module.exports = class TouchTracker {
     static msToWaitBeforeStartTracking = 1500;
     //How many milliseconds to wait when an object is set back on the board before 
     //updating its position officially 
-    static msToWaitOnObjectMovedOrReplaced = 500;
+    static msToWaitOnObjectMovedOrReplaced = 750;
 
     static maxPxDifferenceBetweenSpeculativeAndFinal = 50;
 
@@ -113,9 +113,9 @@ module.exports = class TouchTracker {
             var f = false;
             return { pageX: e.pageX + x, pageY: e.pageY, preventDefault: () => { if (f) return; if (!f) f = true; e.preventDefault(); } }
         };
-        element.addEventListener('mousedown', (e) => { this._onTouchStart(e); this._onTouchStart(c(e, 50), 1); this._onTouchStart(c(e, 80), 2); });
-        element.addEventListener('mousemove', (e) => { this._onTouchMove(e); this._onTouchMove(c(e, 50), 1); this._onTouchMove(c(e, 80), 2); });
-        element.addEventListener('mouseup', (e) => { this._onTouchEnd(e); this._onTouchEnd(c(e, 50), 1); this._onTouchEnd(c(e, 80), 2); });
+        element.addEventListener('mousedown', (e) => { this._onTouchStart(e);});
+        element.addEventListener('mousemove', (e) => { this._onTouchMove(e);});
+        element.addEventListener('mouseup', (e) => { this._onTouchEnd(e); });
         //element.addEventListener('touchcancel', (e) => this._onTouchCancel(e));
     }
 
