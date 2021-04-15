@@ -1,4 +1,4 @@
-const Constants = require("../../constants");
+const Constants = require("../../Constants");
 const TouchTracker = require("../TouchTracker");
 const WorldManager = require("../WorldManager");
 
@@ -66,7 +66,7 @@ module.exports =
                 if (trackedObj.touchPoint)
                 ctx.fillStyle = TouchPointRenderer.touchPointColor;
                 else ctx.fillStyle = TouchPointRenderer.missingPointColor;
-                
+
                 ctx.arc(trackedObj.x, trackedObj.y, arcRadius, 0, 2 * Math.PI);
                 ctx.fill();
 
