@@ -1,10 +1,16 @@
 class TouchPoint {
     x = 0;
     y = 0;
+    //The long segment of the radius of the touch point
+    radiusLong = 0;
+    //The short segment of the radius of the touch point
+    radiusShort = 0;
+    //The angle to approximate the finger sized ellipse
+    radiusAngle = 0;
     id = -1;
     startTime = 0;
     lastMoveTime = 0;
-    activelyTracked = true;
+    ignorePoint = false;
     /**
      * @type {TrackedTouchObject}
      */
@@ -32,8 +38,6 @@ class TrackedTouchObject {
      */
     touchPoint;
 
-    constructor() { console.log("new"); }
-
     get missing() { return this.touchPoint == false; }
 }
 
@@ -45,10 +49,10 @@ module.exports = class TouchTracker {
     //when multiple objects are lifted
     static msToWaitBeforeResettingTrackingLoss = 60000;
     //How many ms to wait before tracking a new object placed on the board
-    static msToWaitBeforeStartTracking = 3000;
+    static msToWaitBeforeStartTracking = 1500;
     //How many milliseconds to wait when an object is set back on the board before 
     //updating its position officially 
-    static msToWaitOnObjectMovedOrReplaced = 1000;
+    static msToWaitOnObjectMovedOrReplaced = 500;
 
     static maxPxDifferenceBetweenSpeculativeAndFinal = 50;
 
@@ -104,19 +108,22 @@ module.exports = class TouchTracker {
         element.addEventListener('touchmove', (e) => this._onTouchMove(e));
         element.addEventListener('touchend', (e) => this._onTouchEnd(e));
         //for testing
-        element.addEventListener('mousedown', (e) => this._onTouchStart(e));
-        element.addEventListener('mousemove', (e) => this._onTouchMove(e));
-        element.addEventListener('mouseup', (e) => this._onTouchEnd(e));
+
+        var c = (e, x = 0) => {
+            var f = false;
+            return { pageX: e.pageX + x, pageY: e.pageY, preventDefault: () => { if (f) return; if (!f) f = true; e.preventDefault(); } }
+        };
+        element.addEventListener('mousedown', (e) => { this._onTouchStart(e); this._onTouchStart(c(e, 50), 1); this._onTouchStart(c(e, 80), 2); });
+        element.addEventListener('mousemove', (e) => { this._onTouchMove(e); this._onTouchMove(c(e, 50), 1); this._onTouchMove(c(e, 80), 2); });
+        element.addEventListener('mouseup', (e) => { this._onTouchEnd(e); this._onTouchEnd(c(e, 50), 1); this._onTouchEnd(c(e, 80), 2); });
         //element.addEventListener('touchcancel', (e) => this._onTouchCancel(e));
     }
 
     renderLoop(deltaTime) {
-
-
         if (this._state == "normal") {
             //Go through each touch point in order
             for (const point of this._activeTouches) {
-                if (!point.activelyTracked) continue; //Discard non tracked touches, as they are explicitly marked as ignore
+                if (point.ignorePoint) continue; //Discard non tracked touches, as they are explicitly marked as ignore
                 if (point._touchObjectTracked) {
                     var trackedObj = point._touchObjectTracked;
                     //It's connected to a tracked object
@@ -194,55 +201,95 @@ module.exports = class TouchTracker {
             //First, determine if enough untracked points are available
             var unassignedPoints = [];
             for (const point of this._activeTouches) {
-                if (!point._touchObjectTracked && point.activelyTracked)
+                if (!point._touchObjectTracked && !point.ignorePoint)
                     unassignedPoints.push(point);
             }
 
-            //If there's not enough points to reconstruct, dont even try
-            if (this._currentLiftedObjects.length > unassignedPoints.length)
+            //Guard clause against inadvertently continuing to run the tracking
+            //even when all touch points have been deleted for inactivity
+            if (this._activeTrackingList.length == 0) {
+                this._state = "normal";
                 return;
+            }
 
             //Try to match each lifted object with a point
             var removalList = [];
             //Keep track of which points were alreadyh assigned
             var usedPoints = [];
-            var missingTouches = false;
+            var missingTouchList = [];
+            var missingTouchCount = 0;
+            //TODO: find a way of assigning each point to the optimal target
+            // (e.g. to the closest target deterministically, as sometimes it will
+            //  run in the wrong order, leading to three points within range, but still too far away)
+
+            var hasAllTouchesTracked = this._matchMissingTouches(this._currentLiftedObjects, this._activeTouches);
             for (const trackedObj of this._currentLiftedObjects) {
+                //Mark the object as not having a speculative target
                 trackedObj.speculative = false;
-                var point = this._findClosestUnlinkedTouchNotAlreadyUsed(trackedObj.x, trackedObj.y, usedPoints);
+                //Find a touch point within range
+                //var point = this._findClosestUnlinkedTouchNotAlreadyUsed(trackedObj.x, trackedObj.y, usedPoints);
+                var point = trackedObj.__FOUNDPOINT;
+                //trackedObj.__FOUNDPOINT = point;
+                //If there is a point, add it to the list of used ones
                 if (point) {
                     usedPoints.push(point);
-                    //Mark it as speculative, as we have a probably candidate
-                    trackedObj.speculative = true;
-                    trackedObj.speculativeX = point.x;
-                    trackedObj.speculativeY = point.y;
                 }
-                else 
-                {
+                else {
                     //Note that we do not have enough touches available
-                    missingTouches = true;
+                    missingTouchCount++;
+                    missingTouchList.push(trackedObj);
                     //Determine if it's been long enough that we should remove this object
                     if (Date.now() - trackedObj.lastSpeculativeMoveTime > TouchTracker.msToWaitBeforeResettingTrackingLoss) {
                         removalList.push(trackedObj);
                     }
                 }
             }
-
-            if (removalList.length > 0)
-                removalList.forEach((a)=>this._removeTrackedObj(a));
+            //If an object has exceeded the time limit and we still can't link all the touches
+            if (removalList.length > 0) {
+                removalList.forEach((a) => this._removeTrackedObj(a));
+                return;
+            }
+            //Next, we look if there's a single touch that is as yet unlinked
+            /*if (missingTouchCount == 1) {
+                var tracked = missingTouchList[0];
+                var target = this._findClosestUnlinkedTouchNotAlreadyUsed(tracked.x, tracked.y, usedPoints, false);
+                if (target) {
+                    //We have a target candidate
+                    tracked.__FOUNDPOINT = target;
+                    missingTouchCount--;
+                }
+            }*/
 
             //Don't link touches unless enough are available
-            if (missingTouches) return;
+            //if (missingTouchCount > 0) return;
+
+            //Then we update the speculation info
+            //And determine if the time object has been there long enough
+            var haveAllObjectsBeenInPlaceLongEnough = true;
+            for (const trackedObj of this._currentLiftedObjects) {
+                if (trackedObj.__FOUNDPOINT) {
+                    trackedObj.speculative = true;
+                    trackedObj.speculativeX = trackedObj.__FOUNDPOINT.x;
+                    trackedObj.speculativeY = trackedObj.__FOUNDPOINT.y;
+                    trackedObj.lastSpeculativeMoveTime = trackedObj.__FOUNDPOINT.lastMoveTime;
+                    //Make sure the point has not moved in a long enough time
+                    if (Date.now() - trackedObj.__FOUNDPOINT.lastMoveTime < TouchTracker.msToWaitOnObjectMovedOrReplaced)
+                        haveAllObjectsBeenInPlaceLongEnough = false;
+                }
+                else haveAllObjectsBeenInPlaceLongEnough = false;
+
+            }
+            if (!hasAllTouchesTracked) return;
+            if (!haveAllObjectsBeenInPlaceLongEnough) return;
 
             //Link the touches and exit trackLoss mode
             for (const trackedObj of this._currentLiftedObjects) {
-                var point = this._findClosestUnlinkedTouch(trackedObj.x, trackedObj.y);
                 trackedObj.speculative = false;
                 trackedObj.lastSpeculativeMoveTime = Date.now();
-                trackedObj.x = point.x;
-                trackedObj.y = point.y;
-                trackedObj.touchPoint = point;
-                point._touchObjectTracked = trackedObj;
+                trackedObj.x = trackedObj.__FOUNDPOINT.x;
+                trackedObj.y = trackedObj.__FOUNDPOINT.y;
+                trackedObj.touchPoint = trackedObj.__FOUNDPOINT;
+                trackedObj.__FOUNDPOINT._touchObjectTracked = trackedObj;
             }
 
             //Clean up lifted list
@@ -252,7 +299,7 @@ module.exports = class TouchTracker {
             this.onTrackingResumed();
         }
     }
-
+    
     //Called when a tracked object is lifted from the screen
     _handleObjectLifted(touchPoint, trackedObj) {
         //Count liftoff as a move
@@ -275,6 +322,8 @@ module.exports = class TouchTracker {
             if (closestUnlinked) {
                 //It's a match, let's link the touch, drop the lifted object from the lifted array, and resume lifted mode
                 //with the new object that was just picked up
+                //We deliberately skip the timeout because we assume another object was picked up and it's 
+                //better to just link the touch at that point
                 point._touchObjectTracked = liftedObj;
                 liftedObj.x = point.x;
                 liftedObj.y = point.y;
@@ -288,7 +337,7 @@ module.exports = class TouchTracker {
 
             if (!closestUnlinked) {
                 //We weren't able to link back the touch point, go into tracking loss mode
-                this._state == "trackLoss";
+                this._state = "trackLoss";
                 this.onTrackingLoss(this._currentLiftedObjects);
             }
         }
@@ -299,10 +348,10 @@ module.exports = class TouchTracker {
         var foundPoint;
         var dMin = Number.POSITIVE_INFINITY;
         for (const point of this._activeTouches) {
-            if (point._touchObjectTracked || !point.activelyTracked)
+            if (point._touchObjectTracked || point.ignorePoint)
                 continue; //Actively tracking another object or not allowed to track
             //Diagonal distance
-            var dist = Math.sqrt(Math.abs(x - point.x) + Math.abs(y - point.y));
+            var dist = Math.sqrt(Math.abs(x - point.x) ** 2 + Math.abs(y - point.y) ** 2);
             //Make sure it's less than max value and less than the closest we have found so far
             if (dist < TouchTracker.maxPxDifferenceBetweenSpeculativeAndFinal && dist < dMin) {
                 foundPoint = point;
@@ -312,29 +361,138 @@ module.exports = class TouchTracker {
 
         return foundPoint;
     }
-    _findClosestUnlinkedTouchNotAlreadyUsed(x, y, usedArray) {
+    _findClosestUnlinkedTouchNotAlreadyUsed(x, y, usedArray, limitDistance = true) {
         var foundPoint;
         var dMin = Number.POSITIVE_INFINITY;
         var availArray = this._activeTouches.filter(
-            (t) => { return !t._touchObjectTracked && t.activelyTracked && ! usedArray.includes(t); })
+            (t) => { return !t._touchObjectTracked && !t.ignorePoint && !usedArray.includes(t); })
         for (const point of availArray) {
-            if (point._touchObjectTracked || !point.activelyTracked)
+            if (point._touchObjectTracked || point.ignorePoint)
                 continue; //Actively tracking another object or not allowed to track
             //Diagonal distance
-            var dist = Math.sqrt(Math.abs(x - point.x) + Math.abs(y - point.y));
+            var dist = Math.sqrt(Math.abs(x - point.x) ** 2 + Math.abs(y - point.y) ** 2);
             //Make sure it's less than max value and less than the closest we have found so far
-            if (dist < TouchTracker.maxPxDifferenceBetweenSpeculativeAndFinal && dist < dMin) {
-                foundPoint = point;
-                dMin = dist;
-            }
+            if (dist < TouchTracker.maxPxDifferenceBetweenSpeculativeAndFinal || !limitDistance)
+                if (dist < dMin) {
+                    foundPoint = point;
+                    dMin = dist;
+                }
         }
 
         return foundPoint;
+    }
+
+    //Iterates through all lifted objects and all touch points, trying each combination to find the minimum
+    //total distance moved, to find the nearest approximation to the accurate touch points
+    _matchMissingTouches(liftedObjects, touchPoints) {
+        //Matching is a bit complicated
+        //We assume, if we cannot match all touches to a lifted object < max dist away
+        // that the first lifted object must be the object that is further away
+        // (but there can only be one further away object)
+
+        //So, phase 0 is to match objects such that the minimum total distance is moved
+        //If there is no way to have all objects < max distance away, then we assume
+        //liftedObjects[0] (and only this one) is further away and try to redo the match
+        //If the match is still unsuccessful, we leave the speculative setup that has the min
+        //total travel distance
+
+        touchPoints = [...touchPoints]; //Copy array
+        //Make sure the touch point array is at least as long as the lifted object array
+        var lengthIncrement = touchPoints.length;
+        while (touchPoints.length < liftedObjects.length) {
+            touchPoints[lengthIncrement++] = null; //Buffer it if the array is too short
+        }
+
+        //Get the possible index sets
+        var indexCombos = this._matchMissingTouchesGetPossibleIndexCombos(touchPoints, liftedObjects.length);
+
+        var minDist = Number.POSITIVE_INFINITY;
+        var indices = new Array(liftedObjects.length);
+        var ctOverMax = 99999999;
+
+        for (var i = 0; i < liftedObjects.length; i++ ) 
+        liftedObjects[i].__FOUNDPOINT = null;
+        indexCombos.forEach(indexSet => {
+            var sumDist = 0;
+            var countOverMax = 0;
+            for (var i = 0; i < indexSet.length; i++) {
+                var obj = liftedObjects[i];
+                var point = touchPoints[indexSet[i]];
+                if (point == null)
+                    sumDist += 10000; // to ensure null points are never prioritized
+                else {
+                    var dist = Math.sqrt(Math.abs(obj.x - point.x) ** 2 + Math.abs(obj.y - point.y) ** 2);
+                    if (dist > TouchTracker.maxPxDifferenceBetweenSpeculativeAndFinal)
+                        countOverMax += 1;
+                    sumDist += dist;
+                }
+            }
+
+            if (minDist > sumDist && ctOverMax >= countOverMax) {
+                indices = indexSet;
+                minDist = sumDist;
+                ctOverMax = countOverMax;
+            }
+        });
+
+        //Process the result
+        if (ctOverMax <=1)
+        for (var i = 0; i < indices.length; i++) {
+            liftedObjects[i].__FOUNDPOINT = touchPoints[indices[i]];
+        }
+
+        return ctOverMax <= 1;
+    }
+
+    //INCREDIBLY POORLY OPTIMIZED TODO FIXME HACK SEND HELP SEND JESUS
+    //This will make the garbage collector very, very angry
+    _matchMissingTouchesGetPossibleIndexCombos(touchArray, count) {
+        var uniqueIndices = [];
+        var finalIndices = [];
+        var temp = [];
+        TouchTracker._matchMissingTouchesGetPossibleIndexCombosIterative(touchArray, uniqueIndices, temp, 0, touchArray.length - 1, 0, count);
+
+        //Then take the unique index count and shift it **touchArray.length** amount of times
+        for (var j = 0; j < uniqueIndices.length; j++) {
+            var arr = [...uniqueIndices[j]];
+            for (var i = 0; i < touchArray.length; i++) {
+                var first = arr.shift();
+                arr.push(first);
+                finalIndices.push([...arr]);
+            }
+        }
+        return finalIndices.filter((val, idx, self) => TouchTracker._matchMissingTouchesFilterIndexOf(self, val) === idx);
+    }
+
+    static _matchMissingTouchesFilterIndexOf(arr, val) {
+        for (var i = 0; i < arr.length; i++) {
+            var eq = true;
+            for (var j = 0; j < val.length; j++) {
+                if (arr[i][j] != val[j]) {
+                    eq = false;
+                    break;
+                }
+            }
+            if (eq)
+                return i;
+        }
+        return -1;
+    }
+
+    static _matchMissingTouchesGetPossibleIndexCombosIterative(array, output, temp, start, end, index, count) {
+        if (index == count) {
+            output.push([...temp]);
+            return;
+        }
+
+        for (var i = start; i <= end && end - i + 1 >= count - index; i++) {
+            temp[index] = i;
+            TouchTracker._matchMissingTouchesGetPossibleIndexCombosIterative(array, output, temp, i + 1, end, index + 1, count);
+        }
     }
 
     //Removes a tracked object from thte tracking list
     _removeTrackedObj(trackedObj) {
-        console.log("remove)");
         //find index 
         var index = this._findTrackedObj(trackedObj.id);
         if (index == -1) return; //Not tracked
@@ -364,18 +522,21 @@ module.exports = class TouchTracker {
      * 
      * @param {TouchEvent} event 
      */
-    _onTouchStart(event) {
+    _onTouchStart(event, x = 0) {
         event.preventDefault();
         var touches = event.changedTouches;
         this._lastTouchEvent = Date.now();
         //Testing only - simulate mouse moves as a single touch event
         if (!touches) {
-            touches = [{ identifier: 0, pageX: event.pageX, pageY: event.pageY }];
+            touches = [{ identifier: x, pageX: event.pageX, pageY: event.pageY }];
         }
 
         for (var i = 0; i < touches.length; i++) {
             //Copy the touch point object and tag it as active
             var point = new TouchPoint(touches[i].identifier, touches[i].pageX, touches[i].pageY);
+            point.radiusLong = Math.max(touches[i].radiusX, touches[i].radiusY);
+            point.radiusLong = Math.min(touches[i].radiusX, touches[i].radiusY);
+            point.radiusAngle = touches[i].rotationAngle;
             this._activeTouches.push(point);
             //First, see if we're in a lifted state
             if (this._state == "lifted") {
@@ -392,15 +553,15 @@ module.exports = class TouchTracker {
 
     /**
      * 
-     * @param {MouseEvent} event 
+     * @param {TouchEvent} event 
      */
-    _onTouchMove(event) {
+    _onTouchMove(event, x = 0) {
         event.preventDefault();
         var touches = event.changedTouches;
         this._lastTouchEvent = Date.now();
         //Testing only - simulate mouse moves as a single touch event
         if (!touches) {
-            touches = [{ identifier: 0, pageX: event.pageX, pageY: event.pageY }];
+            touches = [{ identifier: x, pageX: event.pageX, pageY: event.pageY }];
         }
 
         for (var i = 0; i < touches.length; i++) {
@@ -412,6 +573,9 @@ module.exports = class TouchTracker {
                 //Update the touch point's x and y values
                 touchObj.x = touches[i].pageX;
                 touchObj.y = touches[i].pageY;
+                touchObj.radiusLong = Math.max(touches[i].radiusX, touches[i].radiusY);
+                touchObj.radiusLong = Math.min(touches[i].radiusX, touches[i].radiusY);
+                touchObj.radiusAngle = touches[i].rotationAngle;
                 touchObj.lastMoveTime = Date.now();
                 //Determine if we are currently tracking
                 if (trackedObj) {
@@ -433,13 +597,13 @@ module.exports = class TouchTracker {
      * 
      * @param {TouchEvent} event 
      */
-    _onTouchEnd(event) {
+    _onTouchEnd(event, x = 0) {
         event.preventDefault();
         var touches = event.changedTouches;
         this._lastTouchEvent = Date.now();
         //Testing only - simulate mouse moves as a single touch event
         if (!touches) {
-            touches = [{ identifier: 0, pageX: event.pageX, pageY: event.pageY }];
+            touches = [{ identifier: x, pageX: event.pageX, pageY: event.pageY }];
         }
 
         for (var i = 0; i < touches.length; i++) {
@@ -449,12 +613,11 @@ module.exports = class TouchTracker {
                 var touchObj = this._activeTouches[touchIndex];
                 this._activeTouches.splice(touchIndex, 1); //Remove the touch object
                 //Check if it is attached to a tracked object and actively monitored
-                if (touchObj.activelyTracked && touchObj._touchObjectTracked) {
+                if (!touchObj.ignorePoint && touchObj._touchObjectTracked) {
                     touchObj._touchObjectTracked.touchPoint = null;
                     this._handleObjectLifted(touchObj, touchObj._touchObjectTracked);
                 }
-                //Testing only
-                console.log("Tracked touch: {id =" + touchObj.id + ", time = " + (Date.now() - touchObj.startTime) + "ms }");
+
             } else {
                 throw "End event for untracked touch, ID: " + touches[i].identifier;
             }
