@@ -1,4 +1,4 @@
-const Constants = require("../constants");
+const Constants = require("../Constants");
 const MapInfo = require("../map/MapInfo");
 const GridlineRenderer = require("./Renderers/GridlineRenderer");
 const ImageCache = require("./ImageCache");

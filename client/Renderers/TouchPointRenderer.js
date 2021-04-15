@@ -12,6 +12,7 @@ module.exports =
 
         static speculativeColor = "rgba(160, 160, 160, 0.7)";
         static touchPointColor = "rgba(0,120,0, 0.8)";
+        static missingPointColor = "red";
         static ignoredPointColor = "rgba(100,100,100,0.2)";
 
 
@@ -61,7 +62,11 @@ module.exports =
 
                 //Draw the current position
                 ctx.beginPath();
+
+                if (trackedObj.touchPoint)
                 ctx.fillStyle = TouchPointRenderer.touchPointColor;
+                else ctx.fillStyle = TouchPointRenderer.missingPointColor;
+                
                 ctx.arc(trackedObj.x, trackedObj.y, arcRadius, 0, 2 * Math.PI);
                 ctx.fill();
 
@@ -75,6 +80,12 @@ module.exports =
                     var startAngle =
                         Math.atan(opp / adj);
                     if (adj >= 0) startAngle += Math.PI;
+
+                    //Compute distance
+                    var dist = Math.sqrt(opp**2 + adj **2);
+                    //Skip rendering speculative if it's only a few pixels
+                    //because it's most likely just jitter
+                    if (dist < 10) continue; 
 
                     //Then compute how far short to draw the line, so it lines up with the edge of the arc
                     var shortX = 0;
