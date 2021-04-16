@@ -108,9 +108,10 @@ module.exports = class TouchTracker {
         //BUG WORKAROUND -- touch screen deletes unmoving contact points after
         //15 ish seconds
         var fixup = new TouchScreenFixup();
-        fixup.touchStart = this._onTouchStart;
-        fixup.touchMove = this._onTouchMove;
-        fixup.touchEnd = this._onTouchEnd;
+        var me = this;
+        fixup.touchStart = (e) => me._onTouchStart(e);
+        fixup.touchMove = (e) => me._onTouchMove(e);
+        fixup.touchEnd = (e) => me._onTouchEnd(e);
 
         this._element = element;
         element.addEventListener('touchstart', (e) => fixup._onTouchStart(e));
