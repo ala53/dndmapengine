@@ -26,11 +26,11 @@ module.exports = class FogOfWarRenderer {
             if (y >= this.worldManager.map.height) break;
 
             var tile = tileGrid.getTile(x,y);
+            var vx = x - viewport.left;
+            var vy = y - viewport.top;
 
-            if (x >= viewport.right) continue;
-            if (y >= viewport.bottom) continue;
-            var left = Math.floor(Math.max(0, x * viewport.tileWidthPx));
-            var top = Math.floor(Math.max(0, y * viewport.tileHeightPx));
+            var left = Math.floor(Math.max(0, vx * viewport.tileWidthPx));
+            var top = Math.floor(Math.max(0, vy * viewport.tileHeightPx));
             var right = Math.ceil(Math.min(left + viewport.tileWidthPx, viewport.rightPx));
             var bottom = Math.ceil(Math.min(top + viewport.tileHeightPx, viewport.bottomPx));
             var width = right - left;
