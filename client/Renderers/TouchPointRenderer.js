@@ -62,16 +62,20 @@ module.exports =
 
             //Then, we render all tracked objects
             for (var trackedObj of touchTracker._activeTrackingList) {
-                var arcRadius = untrackedTouch.radiusLong * 1.5;
+                var arcRadius = trackedObj.radiusLong * 1.5;
                 if (arcRadius < oneInchWide / 3) 
                     arcRadius = oneInchWide / 3;
 
                 //Draw the current position
                 ctx.beginPath();
 
-                if (trackedObj.touchPoint)
+                if (trackedObj.touchPoint) {
                 ctx.fillStyle = TouchPointRenderer.touchPointColor;
-                else ctx.fillStyle = TouchPointRenderer.missingPointColor;
+                }
+                else { 
+                    arcRadius = oneInchWide / 3; //We don't know the object size
+                    ctx.fillStyle = TouchPointRenderer.missingPointColor;
+                }
 
                 ctx.arc(trackedObj.x, trackedObj.y, arcRadius, 0, 2 * Math.PI);
                 ctx.fill();
