@@ -57,7 +57,7 @@ module.exports =
                     point.radiusY = srcPt.radiusY;
                     point._lastMove = Date.now();
 
-                    this.touchMove({ changedTouches: [point] });
+                    this.touchMove({ changedTouches: [point], preventDefault = ()=>{} });
                 }
                 else {
                     //New tracking point
@@ -71,7 +71,9 @@ module.exports =
                     point.radiusY = srcPt.radiusY;
                     point._lastMove = Date.now();
 
-                    this.touchStart({ changedTouches: [point] });
+                    this._activeTouchPoints.push(point);
+
+                    this.touchStart({ changedTouches: [point], preventDefault = ()=>{} });
                 }
             }
         }
@@ -95,7 +97,7 @@ module.exports =
                 point.radiusY = srcPt.radiusY;
                 point._lastMove = Date.now();
 
-                this.touchMove({ changedTouches: [point] });
+                this.touchMove({ changedTouches: [point], preventDefault = ()=>{} });
             }
         }
 
@@ -128,7 +130,7 @@ module.exports =
 
                     this._removeTouch(point);
 
-                    this.touchEnd({ changedTouches: [point] });
+                    this.touchEnd({ changedTouches: [point], preventDefault = ()=>{} });
                 }
             }
         }
