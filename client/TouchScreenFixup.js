@@ -113,11 +113,13 @@ module.exports =
             for (var i = 0; i < touches.length; i++) {
                 //Find the linked point
                 var point = this._findLinked(touches[i].identifier);
+                console.log(Date.now() - point._lastMove);
                 //Handle timeouts internally
                 if (Date.now() - point._lastMove > TouchScreenFixup._touchTimeout) {
                     //Timed out
                     point._hasTimedOut = true;
                     point._srcPtId = null;
+                    console.log ("   -> timeout");
                 }
                 else {
                     //Issue touch end events appropriately for **actually** ended touches
@@ -132,6 +134,7 @@ module.exports =
                     point.radiusY = undefined;
                     point.identifier = undefined;
                     point.rotationAngle = undefined;
+                    console.log ("   -> delete");
 
                 }
             }
