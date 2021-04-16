@@ -6,12 +6,12 @@
         <canvas id="renderArea" style="overflow:hidden"></canvas>
         <div id="UI" style="position:fixed;left:0;top:0"></div>
         <div id="Controls" style="position:fixed;left:20;bottom:20">
-            <button onclick="worldManager.viewport.left -= 1;">left</button>
-            <button onclick="worldManager.viewport.left += 1;">right</button>
-            <button onclick="worldManager.viewport.top -= 1;">up</button>
-            <button onclick="worldManager.viewport.top += 1;">down</button>
-            <button onclick="worldManager.viewport.zoom *= 1.5;">zoom in</button>
-            <button onclick="worldManager.viewport.zoom /= 1.5;">zoom out</button>
+            <button ontouchend="worldManager.viewport.left -= 1;">left</button>
+            <button ontouchend="worldManager.viewport.left += 1;">right</button>
+            <button ontouchend="worldManager.viewport.top -= 1;">up</button>
+            <button ontouchend="worldManager.viewport.top += 1;">down</button>
+            <button ontouchend="worldManager.viewport.zoom *= 1.5;">zoom in</button>
+            <button ontouchend="worldManager.viewport.zoom /= 1.5;">zoom out</button>
         </div>
         <button style="position:fixed;left:200;top:20" onclick="location.reload()">RELOAD</button>
     </body>
