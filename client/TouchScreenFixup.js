@@ -1,7 +1,9 @@
 module.exports =
     /*
     The IR touch screen triggers a touch end event if the touch point has not moved
-    for 15 or so seconds, even if it is still present. It then triggers a new touchstart and
+    for 15 or so seconds, even if it is still present. Sometimes it's less than that,
+    it seems to be some sort of weird heuristic. I've seen as little as 2 seconds, but more
+    often > 10 seconds. It isn't really logical. It then triggers a new touchstart and
     touchupdate upon resumption. So, this class tracks the touchpoints and blocks touch end
     events if the touch point has not updated in > 10 seconds. It then marks the touch
     point as active, not present and waits for a new touchstart event indicating the 
@@ -14,7 +16,10 @@ module.exports =
         _nextId = 0;
         _activeTouchPoints = [];
 
-        static _touchTimeout = 10000;
+        //Anything that hasn't gotten an update in 1000ms is assumed to be 
+        //a timeout. Nobody can keep their fingers perfectly still, so there's always updates
+        //with finger touches. 
+        static _touchTimeout = 1000;
         static _timeoutResumeMaxDistPx = 20;
 
         /**
