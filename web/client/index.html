@@ -14,7 +14,7 @@
             <button ontouchend="worldManager.viewport.top += 1;" onmouseup="worldManager.viewport.top += 1;">down</button>
             <button ontouchend="worldManager.viewport.zoom *= 1.5;" onmouseup="worldManager.viewport.zoom *= 1.5;">zoom in</button>
             <button ontouchend="worldManager.viewport.zoom /= 1.5;" onmouseup="worldManager.viewport.zoom /= 1.5;">zoom out</button>
-            <button style="margin-left: 100px" onmousedown="reloadBtnClickStart" onmouseout="reloadBtnClickEnd" ontouchstart="reloadBtnClickStart" ontouchend="reloadBtnClickEnd">reload</button>
+            <button style="margin-left: 100px" onmousedown="reloadBtnClickStart()" onmouseup="reloadBtnClickEnd()" ontouchstart="reloadBtnClickStart()" ontouchend="reloadBtnClickEnd()">reload</button>
         </div>
     </body>
 </html>
