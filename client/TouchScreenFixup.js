@@ -121,6 +121,11 @@ module.exports =
                 }
                 else {
                     //Issue touch end events appropriately for **actually** ended touches
+                    this._removeTouch(point);
+
+                    this.touchEnd({ changedTouches: [point], preventDefault: ()=>{} });
+
+                    //And clear the data so it's useless to store
                     point.pageX = undefined;
                     point.pageY = undefined;
                     point.radiusX = undefined;
@@ -128,9 +133,6 @@ module.exports =
                     point.identifier = undefined;
                     point.rotationAngle = undefined;
 
-                    this._removeTouch(point);
-
-                    this.touchEnd({ changedTouches: [point], preventDefault: ()=>{} });
                 }
             }
         }
