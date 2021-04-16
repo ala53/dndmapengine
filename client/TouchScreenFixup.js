@@ -38,7 +38,7 @@ module.exports =
          * @param {TouchEvent} e 
          */
         _onTouchStart(e) {
-            console.log("start");
+            console.log(new Date() + "start");
             e.preventDefault();
 
             var touches = e.changedTouches;
@@ -83,7 +83,7 @@ module.exports =
          * @param {TouchEvent} e 
          */
         _onTouchMove(e) {
-            console.log("update");
+            console.log(new Date() + " update");
             e.preventDefault();
 
             var touches = e.changedTouches;
@@ -106,7 +106,7 @@ module.exports =
          * @param {TouchEvent} e 
          */
         _onTouchEnd(e) {
-            console.log("end");
+            console.log(new Date() + "end");
             e.preventDefault();
 
             var touches = e.changedTouches;
@@ -132,6 +132,8 @@ module.exports =
                     point.radiusY = undefined;
                     point.identifier = undefined;
                     point.rotationAngle = undefined;
+
+                    console.log("   -> delete (" + point._lastMove - Date.now() + "ms)");
 
                 }
             }
