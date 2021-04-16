@@ -16,10 +16,12 @@ module.exports =
         _nextId = 0;
         _activeTouchPoints = [];
 
-        //Anything that hasn't gotten an update in 1000ms is assumed to be 
+        //Anything that hasn't gotten an update in 1500ms is assumed to be 
         //a timeout. Nobody can keep their fingers perfectly still, so there's always updates
         //with finger touches. 
-        static _touchTimeout = 1000;
+        static _touchTimeout = 1500;
+        //Any touch object that has not been there at least 5000ms is not allowed to time out
+        static _timeoutMinExistTime = 5000;
         static _timeoutResumeMaxDistPx = 20;
 
         /**
@@ -60,6 +62,7 @@ module.exports =
                     point.radiusX = srcPt.radiusX;
                     point.radiusY = srcPt.radiusY;
                     point._lastMove = Date.now();
+                    point._createTime = Date.now();
 
                     this.touchMove({ changedTouches: [point], preventDefault: ()=>{} });
                 }
@@ -116,7 +119,8 @@ module.exports =
                 //Find the linked point
                 var point = this._findLinked(touches[i].identifier);
                 //Handle timeouts internally
-                if (Date.now() - point._lastMove > TouchScreenFixup._touchTimeout) {
+                if (Date.now() - point._lastMove > TouchScreenFixup._touchTimeout &&
+                 Date.now() - point._createTime > TouchScreenFixup._timeoutMinExistTime) {
                     //Timed out
                     point._hasTimedOut = true;
                     point._srcPtId = null;
@@ -189,6 +193,7 @@ class InternalTouchPoint {
     _hasTimedOut = false;
 
     _lastMove = Date.now();
+    _createTime = Date.now();
     preventDefault() {
 
     }
