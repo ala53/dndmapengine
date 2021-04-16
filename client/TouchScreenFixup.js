@@ -62,7 +62,6 @@ module.exports =
                     point.radiusX = srcPt.radiusX;
                     point.radiusY = srcPt.radiusY;
                     point._lastMove = Date.now();
-                    point._createTime = Date.now();
 
                     this.touchMove({ changedTouches: [point], preventDefault: ()=>{} });
                 }
@@ -77,6 +76,7 @@ module.exports =
                     point.radiusX = srcPt.radiusX;
                     point.radiusY = srcPt.radiusY;
                     point._lastMove = Date.now();
+                    point._createTime = Date.now();
 
                     this._activeTouchPoints.push(point);
 

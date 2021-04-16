@@ -3,7 +3,7 @@ const WorldManager = require("../WorldManager");
 
 module.exports = class FogOfWarRenderer {
     static fogOfWarHiddenColor = "rgba(0,0,0,0.95)";
-    static fogOfWarUncoveredColor = "rgba(0.5,0.5,0.5,0.5)";
+    static fogOfWarUncoveredColor = "rgba(0.5,0.5,0.5,0.7)";
     /**
      * 
      * @type {WorldManager}
