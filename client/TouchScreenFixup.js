@@ -133,7 +133,7 @@ module.exports =
                     point.identifier = undefined;
                     point.rotationAngle = undefined;
 
-                    console.log("   -> delete (" + point._lastMove - Date.now() + "ms)");
+                    console.log("   -> delete (" + (point._lastMove - Date.now()) + "ms)");
 
                 }
             }
