@@ -13,13 +13,24 @@ const WorldObjectHandler = require("./WorldObjectHandler");
 class WorldViewport {
     tileWidthPx = 1;
     tileHeightPx = 1;
-    left = 0;
-    top = 0;
+    _left = 0;
+    _top = 0;
     width = 1;
     height = 1;
-    zoom = 1;
+    _zoom = 1;
+
+
+    get zoom() { return this._zoom; }
+    set zoom(value) { if (value < 0.10) value = 0.10; if (value > 10) value = 10; this._zoom = value; }
+
+    get left() { return this._left; }
+    set left(value) { if (value < 0) value = 0; this._left = value; }
+
     get right() { return this.left + this.width; }
     set right(value) { this.left = value - this.width; }
+
+    get top() { return this._top; }
+    set top(value) { if (value < 0) value = 0; this._top = value; }
 
     get bottom() { return this.top + this.height; }
     set bottom(value) { this.top = value - this.height; }
@@ -104,7 +115,7 @@ module.exports = class WorldManager {
         this.viewport.height = this.canvas.height / this.viewport.tileHeightPx;
 
         //Don't render until the image cache is loaded
-        if (!this.imageCache._areAllLoaded())
+        if (!this.imageCache.loadingComplete)
             return;
 
         //Call frame loops

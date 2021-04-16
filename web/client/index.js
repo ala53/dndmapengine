@@ -30,5 +30,8 @@ window.onresize = () => {
     var canvas = document.getElementById("renderArea");
     canvas.width = document.body.clientWidth; //document.width is obsolete
     canvas.height = document.body.clientHeight;
+
+    //Scale the ui div
+    
 }
 

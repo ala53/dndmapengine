@@ -19,6 +19,7 @@ module.exports =
 class ImageCache {
     _images = [];
     _imagesKeyed = {};
+    _initialized = false;
     constructor() {
 
     }
@@ -27,6 +28,7 @@ class ImageCache {
         //Query all files in the web_content/images folder and load them
         fs.readdir(dir, (err, files) => {
             if (err) throw err;
+            this._initialized = true;
             files.forEach(fPath => {
                 fPath = path.resolve(path.join(dir, fPath));
                 //load the image
@@ -39,7 +41,7 @@ class ImageCache {
                 // When the image has loaded, draw it to the canvas
                 image.onload = () => {
                     cached.completedLoad = true;
-                    if (this._areAllLoaded()) {
+                    if (this.loadingComplete) {
                         if (loadedCallback) loadedCallback();
                     }
                 }
@@ -55,7 +57,8 @@ class ImageCache {
 
     find(name) { return this._imagesKeyed[name].element; }
 
-    _areAllLoaded() {
+    get loadingComplete() {
+        if (!this._initialized) return false;
         for (var i in this._images) {
             if (!this._images[i].completedLoad) return false;
         }

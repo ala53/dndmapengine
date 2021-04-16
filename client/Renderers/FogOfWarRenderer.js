@@ -20,7 +20,11 @@ module.exports = class FogOfWarRenderer {
         var tileGrid = this.worldManager.tileGrid;
         //Iterate through the grid
         for (var x = Math.floor(viewport.left); x < viewport.right; x++) {
+            if (x >= this.worldManager.map.width) break;
+
         for (var y = Math.floor(viewport.top); y < viewport.bottom; y++) {
+            if (y >= this.worldManager.map.height) break;
+
             var tile = tileGrid.getTile(x,y);
 
             if (x >= viewport.right) continue;
