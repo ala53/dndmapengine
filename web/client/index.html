@@ -12,7 +12,8 @@
             <button ontouchend="worldManager.viewport.top += 1;">down</button>
             <button ontouchend="worldManager.viewport.zoom *= 1.5;">zoom in</button>
             <button ontouchend="worldManager.viewport.zoom /= 1.5;">zoom out</button>
+            <button style="margin-left: 100px" ontouchstart="__RELOADTIME = Date.now();" ontouchend="if (Date.now() - __RELOADTIME > 1000) location.reload()">reload</button>
+            <button ontouchstart="__DEVTOOLTIME = Date.now();" ontouchend="if (Date.now() - __DEVTOOLTIME > 1000) require('remote').getCurrentWindow().toggleDevTools();">debug tools</button>
         </div>
-        <button style="position:fixed;left:200;top:20" onclick="location.reload()">RELOAD</button>
     </body>
 </html>

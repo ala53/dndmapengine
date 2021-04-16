@@ -16,7 +16,7 @@ function createWindow () {
 
   win.maximize();
   win.setFullScreen(true);
-  win.webContents.openDevTools();
+  //win.webContents.openDevTools();
   win.loadFile('./web/client/index.html')
 
 }
