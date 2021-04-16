@@ -19,7 +19,7 @@ module.exports =
         //Anything that hasn't gotten an update in 1500ms is assumed to be 
         //a timeout. Nobody can keep their fingers perfectly still, so there's always updates
         //with finger touches. 
-        static _touchTimeout = 2500;
+        static _touchTimeout = 1500;
         //Any touch object that has not been there at least 5000ms is not allowed to time out
         static _timeoutMinExistTime = 5000;
         static _timeoutResumeMaxDistPx = 50;
