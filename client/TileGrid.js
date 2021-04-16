@@ -16,7 +16,9 @@ class WorldObject {
     //The external linked object
     linkedObject;
     //Whether fog of war should be computed for this object
-    affectsFogOfWar = false;
+    get affectsFogOfWar() { return this.fogOfWarDistance > 0; }
+    //The distance in tiles this object uncovers fog of war for
+    fogOfWarDistance = 0;
     //Whether this object should be actively considered as part of the world
     active = false;
 }
@@ -31,8 +33,10 @@ class TileGrid {
     grid;
 
     constructor(width, height) {
+        width = Math.floor(width);
+        height = Math.floor(height); 
         this.width = width;
-        this.height = height; 
+        this.height = height;
 
         //Generate the grid
         this.grid = new Array(width);

@@ -63,12 +63,13 @@ module.exports = class WorldManager {
     uiRenderer;
 
     tileGrid;
-    map = MapInfo;
+    map = MapInfo.maps[2];
     worldObjectHandler;
 
     imageCache;
     viewport = new WorldViewport();
     renderers = [];
+    fogOfWarRenderer;
     /**
      * 
      * @param {HTMLCanvasElement} canvasElement 
@@ -89,9 +90,26 @@ module.exports = class WorldManager {
         //Set up renderers, ordered
 
         this.renderers.push(new MapRenderer(this));
-        this.renderers.push(new FogOfWarRenderer(this));
+        this.fogOfWarRenderer = new FogOfWarRenderer(this);
+        this.renderers.push(this.fogOfWarRenderer);
         this.renderers.push(new GridlineRenderer(this));
         this.renderers.push(new TouchPointRenderer(this));
+
+        //Appropriately size the viewport
+        this._recomputeViewport();
+        //Center the viewport to the map target area
+        this.viewport.left = this.map.start.x - (this.viewport.width / 2);
+        this.viewport.top = this.map.start.y - (this.viewport.height / 2);
+        //Clamp
+        this.viewport.left = Math.max(0, this.viewport.left);
+        this.viewport.top = Math.max(0, this.viewport.top);
+        if (this.viewport.right > this.map.width)
+            this.viewport.right = this.map.width;
+        if (this.viewport.bottom > this.map.height)
+            this.viewport.bottom = this.map.height;
+
+        //Uncover the fog of war on the starting tile
+        this.fogOfWarRenderer.traceTileFogOfWarFromPoint(this.map.start.x, this.map.start.y, 5.3, TileFogOfWarState.uncovered);
     }
 
     _lastRenderTime = 0;
@@ -101,18 +119,7 @@ module.exports = class WorldManager {
             this._lastRenderTime = Date.now() - 30; //30 ms ago
 
         var deltaTime = Date.now() - this._lastRenderTime;
-        var canvasWidth = this.canvas.width;
-        var screenWidthForCanvas = Constants.screenWidthIn;
-        if (this.uiRenderer.uiTabOpen) {
-        canvasWidth *= (1 - UIRenderer.uiWidthPercent);
-        screenWidthForCanvas *= (1 - UIRenderer.uiWidthPercent);
-        }
-        //Recompute the viewport
-        //At default zoom, equal to 1 inch width
-        this.viewport.tileWidthPx = (canvasWidth / screenWidthForCanvas) * this.viewport.zoom;
-        this.viewport.tileHeightPx = (this.canvas.height / Constants.screenHeightIn) * this.viewport.zoom;
-        this.viewport.width = canvasWidth / this.viewport.tileWidthPx;
-        this.viewport.height = this.canvas.height / this.viewport.tileHeightPx;
+        this._recomputeViewport();
 
         //Don't render until the image cache is loaded
         if (!this.imageCache.loadingComplete)
@@ -122,7 +129,7 @@ module.exports = class WorldManager {
         this.touchTracker.renderLoop(deltaTime);
         this.uiRenderer.renderLoop(deltaTime);
         //Clear the screen
-        this.context.clearRect(0, 0, 99999, 99999);
+        this.context.clearRect(0, 0, 9999, 9999);
         //Run each renderer
         for (var i = 0; i < this.renderers.length; i++) {
             this.context.save(); //Save canvas context state
@@ -130,5 +137,25 @@ module.exports = class WorldManager {
                 this.renderers[i].renderLoop(deltaTime);
             this.context.restore(); // And pop the default state
         }
+    }
+
+    //Called to handle window resizes
+    handleResize(width, height) {
+
+    }
+
+    _recomputeViewport() {
+        var canvasWidth = this.canvas.width;
+        var screenWidthForCanvas = Constants.screenWidthIn;
+        if (this.uiRenderer.uiTabOpen) {
+            canvasWidth *= (1 - UIRenderer.uiWidthPercent);
+            screenWidthForCanvas *= (1 - UIRenderer.uiWidthPercent);
+        }
+        //Recompute the viewport
+        //At default zoom, equal to 1 inch width
+        this.viewport.tileWidthPx = (canvasWidth / screenWidthForCanvas) * this.viewport.zoom;
+        this.viewport.tileHeightPx = (this.canvas.height / Constants.screenHeightIn) * this.viewport.zoom;
+        this.viewport.width = canvasWidth / this.viewport.tileWidthPx;
+        this.viewport.height = this.canvas.height / this.viewport.tileHeightPx;
     }
 }

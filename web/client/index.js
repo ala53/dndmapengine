@@ -31,7 +31,6 @@ window.onresize = () => {
     canvas.width = document.body.clientWidth; //document.width is obsolete
     canvas.height = document.body.clientHeight;
 
-    //Scale the ui div
-    
+    worldManager.handleResize(document.body.clientWidth, document.body.clientHeight);
 }
 

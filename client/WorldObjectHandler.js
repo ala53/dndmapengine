@@ -26,7 +26,8 @@ module.exports = class WorldObjectHandler {
             //Link back to the tracked object
             object.linkedObject = obj;
             object.active = true;
-            object.affectsFogOfWar = true;
+            object.fogOfWarDistance = 6;
+
 
             worldObjects.push(object);
             worldObjectsKeyed[obj.id] = object;
@@ -39,7 +40,6 @@ module.exports = class WorldObjectHandler {
             object.linkedObject = null;
             //Just to be safe
             object.active = false;
-            object.affectsFogOfWar = false;
             //Delete from container
             worldObjects.splice(worldObjects.indexOf(object), 1);
             worldObjectsKeyed[obj.id]= undefined;

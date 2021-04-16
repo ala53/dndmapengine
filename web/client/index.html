@@ -1,18 +1,20 @@
 <html style="overflow:hidden">
     <head>
         <script src="index.js"></script>
+        <script src="uicontrols.js"></script>
+        <link rel="stylesheet" href="css/milligram.css"/>
     </head>
-    <body>
+    <body style="background-color: black;">
         <canvas id="renderArea" style="overflow:hidden"></canvas>
         <div id="UI" style="position:fixed;left:0;top:0"></div>
         <div id="Controls" style="position:fixed;left:20;bottom:20">
-            <button ontouchend="worldManager.viewport.left -= 1;">left</button>
-            <button ontouchend="worldManager.viewport.left += 1;">right</button>
-            <button ontouchend="worldManager.viewport.top -= 1;">up</button>
-            <button ontouchend="worldManager.viewport.top += 1;">down</button>
-            <button ontouchend="worldManager.viewport.zoom *= 1.5;">zoom in</button>
-            <button ontouchend="worldManager.viewport.zoom /= 1.5;">zoom out</button>
-            <button style="margin-left: 100px" ontouchstart="__RELOADTIME = Date.now();" ontouchend="if (Date.now() - __RELOADTIME > 1000) location.reload()">reload</button>
+            <button ontouchend="worldManager.viewport.left -= 1;" onmouseup="worldManager.viewport.left -= 1;">left</button>
+            <button ontouchend="worldManager.viewport.left += 1;" onmouseup="worldManager.viewport.left += 1;">right</button>
+            <button ontouchend="worldManager.viewport.top -= 1;" onmouseup="worldManager.viewport.top -= 1;">up</button>
+            <button ontouchend="worldManager.viewport.top += 1;" onmouseup="worldManager.viewport.top += 1;">down</button>
+            <button ontouchend="worldManager.viewport.zoom *= 1.5;" onmouseup="worldManager.viewport.zoom *= 1.5;">zoom in</button>
+            <button ontouchend="worldManager.viewport.zoom /= 1.5;" onmouseup="worldManager.viewport.zoom /= 1.5;">zoom out</button>
+            <button style="margin-left: 100px" onmousedown="reloadBtnClickStart" onmouseout="reloadBtnClickEnd" ontouchstart="reloadBtnClickStart" ontouchend="reloadBtnClickEnd">reload</button>
         </div>
     </body>
 </html>
