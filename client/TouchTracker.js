@@ -1,3 +1,5 @@
+const TouchScreenFixup = require("./TouchScreenFixup");
+
 class TouchPoint {
     x = 0;
     y = 0;
@@ -103,20 +105,18 @@ module.exports = class TouchTracker {
      * @param {HTMLElement} element 
      */
     register(element) {
-        this._element = element;
-        element.addEventListener('touchstart', (e) => this._onTouchStart(e));
-        element.addEventListener('touchmove', (e) => this._onTouchMove(e));
-        element.addEventListener('touchend', (e) => this._onTouchEnd(e));
-        //for testing
+        //BUG WORKAROUND -- touch screen deletes unmoving contact points after
+        //15 ish seconds
+        var fixup = new TouchScreenFixup();
+        fixup.touchStart = this._onTouchStart;
+        fixup.touchMove = this._onTouchMove;
+        fixup.touchEnd = this._onTouchEnd;
 
-        var c = (e, x = 0) => {
-            var f = false;
-            return { pageX: e.pageX + x, pageY: e.pageY, preventDefault: () => { if (f) return; if (!f) f = true; e.preventDefault(); } }
-        };
-        element.addEventListener('mousedown', (e) => { this._onTouchStart(e);});
-        element.addEventListener('mousemove', (e) => { this._onTouchMove(e);});
-        element.addEventListener('mouseup', (e) => { this._onTouchEnd(e); });
-        //element.addEventListener('touchcancel', (e) => this._onTouchCancel(e));
+        this._element = element;
+        element.addEventListener('touchstart', (e) => fixup._onTouchStart(e));
+        element.addEventListener('touchmove', (e) => fixup._onTouchMove(e));
+        element.addEventListener('touchend', (e) => fixup._onTouchEnd(e));
+        element.addEventListener('touchcancel', (e) => console.log("cancel"));
     }
 
     renderLoop(deltaTime) {
@@ -522,14 +522,10 @@ module.exports = class TouchTracker {
      * 
      * @param {TouchEvent} event 
      */
-    _onTouchStart(event, x = 0) {
+    _onTouchStart(event) {
         event.preventDefault();
         var touches = event.changedTouches;
         this._lastTouchEvent = Date.now();
-        //Testing only - simulate mouse moves as a single touch event
-        if (!touches) {
-            touches = [{ identifier: x, pageX: event.pageX, pageY: event.pageY }];
-        }
 
         for (var i = 0; i < touches.length; i++) {
             //Copy the touch point object and tag it as active
@@ -555,14 +551,10 @@ module.exports = class TouchTracker {
      * 
      * @param {TouchEvent} event 
      */
-    _onTouchMove(event, x = 0) {
+    _onTouchMove(event) {
         event.preventDefault();
         var touches = event.changedTouches;
         this._lastTouchEvent = Date.now();
-        //Testing only - simulate mouse moves as a single touch event
-        if (!touches) {
-            touches = [{ identifier: x, pageX: event.pageX, pageY: event.pageY }];
-        }
 
         for (var i = 0; i < touches.length; i++) {
             var touchIndex = this._findTouch(touches[i].identifier);
@@ -597,14 +589,10 @@ module.exports = class TouchTracker {
      * 
      * @param {TouchEvent} event 
      */
-    _onTouchEnd(event, x = 0) {
+    _onTouchEnd(event) {
         event.preventDefault();
         var touches = event.changedTouches;
         this._lastTouchEvent = Date.now();
-        //Testing only - simulate mouse moves as a single touch event
-        if (!touches) {
-            touches = [{ identifier: x, pageX: event.pageX, pageY: event.pageY }];
-        }
 
         for (var i = 0; i < touches.length; i++) {
             var touchIndex = this._findTouch(touches[i].identifier);
