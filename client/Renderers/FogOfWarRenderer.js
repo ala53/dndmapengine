@@ -2,7 +2,7 @@ const { TileFogOfWarState } = require("../TileGrid");
 const WorldManager = require("../WorldManager");
 
 module.exports = class FogOfWarRenderer {
-    static fogOfWarHiddenColor = "rgba(0,0,0,0.85)";
+    static fogOfWarHiddenColor = "rgba(0,0,0,0.95)";
     static fogOfWarUncoveredColor = "rgba(0.5,0.5,0.5,0.5)";
     /**
      * 
@@ -99,7 +99,7 @@ module.exports = class FogOfWarRenderer {
         for (var y = 0; y < grid.height; y++){
             var tile = grid.getTile(x,y);
             if (tile.fogOfWarState == TileFogOfWarState.visible)
-                tile.fogOfWarState = TileFogOfWarState.hidden;
+                tile.fogOfWarState = TileFogOfWarState.uncovered;
         }
         //Then highlight appropriately
         for (var x = 0; x < grid.width; x++)
