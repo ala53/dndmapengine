@@ -122,7 +122,7 @@ module.exports = class WorldManager {
         this._recomputeViewport();
 
         //Don't render until the image cache is loaded
-        if (!this.imageCache.loadingComplete)
+        if (!this.imageCache.initialized)
             return;
 
         //Call frame loops

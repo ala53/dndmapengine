@@ -2,15 +2,38 @@ const fs = require("fs");
 const path = require("path");
 class LoadedImage {
     element;
-    completedLoad = false;
     name;
     path;
 
-    constructor(elem, name, path) {
+    _isLoaded = false;
+    _isInitialized = false;
+
+    constructor(name, path) {
         this.name = name;
         this.path = path;
-        this.element = elem;
     }
+
+    load() {
+        if (this._isInitialized) return;
+        this._isInitialized = true;
+        // Create an image object. This is not attached to the DOM and is not part of the page.
+        var image = new Image();
+        var cached = this;
+        // When the image has loaded, draw it to the canvas
+        image.onload = () => {
+            cached._isLoaded = true;
+        }
+        image.onerror = () => {
+            throw "Failed to load image " + fPath;
+        }
+    
+        // Now set the source of the image that we want to load
+        image.src = cached.path;
+
+        this.element = image;
+    }
+
+    get isLoaded() { return this._isLoaded; }
 }
 
 module.exports = 
@@ -23,45 +46,26 @@ class ImageCache {
     constructor() {
 
     }
-    initialize(loadedCallback) {
+    initialize() {
         var dir = "./map/images";
         //Query all files in the web_content/images folder and load them
         fs.readdir(dir, (err, files) => {
             if (err) throw err;
-            this._initialized = true;
             files.forEach(fPath => {
                 fPath = path.resolve(path.join(dir, fPath));
-                //load the image
-                // Create an image object. This is not attached to the DOM and is not part of the page.
-                var image = new Image();
-                var cached = new LoadedImage(image, path.basename(fPath), fPath);
+                //Create the image cache object
+                var cached = new LoadedImage(path.basename(fPath), fPath);
                 this._imagesKeyed[cached.name] = cached;
                 this._images.push(cached);
 
-                // When the image has loaded, draw it to the canvas
-                image.onload = () => {
-                    cached.completedLoad = true;
-                    if (this.loadingComplete) {
-                        if (loadedCallback) loadedCallback();
-                    }
-                }
-                image.onerror = () => {
-                    throw "Failed to load image " + fPath;
-                }
-            
-                // Now set the source of the image that we want to load
-                image.src = fPath;
             });
+            this._initialized = true;
         });
     }
 
-    find(name) { return this._imagesKeyed[name].element; }
+    find(name) { return this._imagesKeyed[name]; }
 
-    get loadingComplete() {
-        if (!this._initialized) return false;
-        for (var i in this._images) {
-            if (!this._images[i].completedLoad) return false;
-        }
-        return true;
+    get initialized() {
+        return this._initialized;
     }
 }
