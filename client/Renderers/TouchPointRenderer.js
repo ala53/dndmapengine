@@ -31,14 +31,17 @@ module.exports =
             var touchTracker = this.worldManager.touchTracker;
             var ctx = this.worldManager.context;
             var lineWidth = oneInchWide / 10;
-            var arcRadius = oneInchWide / 2;
             //First, we render all touches that are 
             //still pending / have not been there long enough
             //to be linked to a tracked object
             if (touchTracker._state == "normal") {
                 for (var untrackedTouch of touchTracker._activeTouches) {
+                    var arcRadius = untrackedTouch.radiusLong * 1.5;
+                    if (arcRadius < oneInchWide / 3) 
+                        arcRadius = oneInchWide / 3;
                     //Make sure we're not tracking anything
                     if (!untrackedTouch._touchObjectTracked && !untrackedTouch.ignorePoint) {
+
                         ctx.beginPath();
 
                         var percentRealized = (Date.now() - untrackedTouch.startTime) / TouchTracker.msToWaitBeforeStartTracking;
@@ -59,6 +62,9 @@ module.exports =
 
             //Then, we render all tracked objects
             for (var trackedObj of touchTracker._activeTrackingList) {
+                var arcRadius = untrackedTouch.radiusLong * 1.5;
+                if (arcRadius < oneInchWide / 3) 
+                    arcRadius = oneInchWide / 3;
 
                 //Draw the current position
                 ctx.beginPath();

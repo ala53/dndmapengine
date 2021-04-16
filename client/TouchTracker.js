@@ -34,6 +34,9 @@ class TrackedTouchObject {
     speculativeX = 0;
     speculativeY = 0;
     speculative = false;
+    radiusLong = 0;
+    radiusShort = 0;
+    rotationAngle = 0;
     lastSpeculativeMoveTime = 0;
     /**
      * @type {TouchPoint}
@@ -135,6 +138,9 @@ module.exports = class TouchTracker {
                             trackedObj.lastSpeculativeMoveTime = Date.now();
                             trackedObj.x = point.x;
                             trackedObj.y = point.y;
+                            trackedObj.radiusLong = point.radiusLong;
+                            trackedObj.radiusShort = point.radiusShort;
+                            trackedObj.rotationAngle = point.rotationAngle;
                             //And issue an event
                             this.onObjectMove(trackedObj);
                         }
@@ -147,6 +153,9 @@ module.exports = class TouchTracker {
                         var trackObj = new TrackedTouchObject();
                         trackObj.x = point.x;
                         trackObj.y = point.y;
+                        trackedObj.radiusLong = point.radiusLong;
+                        trackedObj.radiusShort = point.radiusShort;
+                        trackedObj.rotationAngle = point.rotationAngle;
                         trackObj.touchPoint = point;
                         trackObj.id = this._nextId++;
                         point._touchObjectTracked = trackObj;
@@ -166,6 +175,9 @@ module.exports = class TouchTracker {
                 //Link the speculative move regardless
                 trackedObj.speculativeX = closestUnlinked.x;
                 trackedObj.speculativeY = closestUnlinked.y;
+                trackedObj.radiusLong = closestUnlinked.radiusLong;
+                trackedObj.radiusShort = closestUnlinked.radiusShort;
+                trackedObj.rotationAngle = closestUnlinked.rotationAngle;
                 trackedObj.speculative = true;
                 //There is an appropriate point to move toward, update the point if enough time passed
                 if (timePassed > TouchTracker.msToWaitOnObjectMovedOrReplaced) {
@@ -174,6 +186,9 @@ module.exports = class TouchTracker {
                     trackedObj.lastSpeculativeMoveTime = Date.now();
                     trackedObj.x = closestUnlinked.x;
                     trackedObj.y = closestUnlinked.y;
+                trackedObj.radiusLong = closestUnlinked.radiusLong;
+                trackedObj.radiusShort = closestUnlinked.radiusShort;
+                trackedObj.rotationAngle = closestUnlinked.rotationAngle;
                     trackedObj.touchPoint = closestUnlinked;
                     closestUnlinked._touchObjectTracked = trackedObj;
                     //Clean up lifted list
@@ -250,19 +265,6 @@ module.exports = class TouchTracker {
                 removalList.forEach((a) => this._removeTrackedObj(a));
                 return;
             }
-            //Next, we look if there's a single touch that is as yet unlinked
-            /*if (missingTouchCount == 1) {
-                var tracked = missingTouchList[0];
-                var target = this._findClosestUnlinkedTouchNotAlreadyUsed(tracked.x, tracked.y, usedPoints, false);
-                if (target) {
-                    //We have a target candidate
-                    tracked.__FOUNDPOINT = target;
-                    missingTouchCount--;
-                }
-            }*/
-
-            //Don't link touches unless enough are available
-            //if (missingTouchCount > 0) return;
 
             //Then we update the speculation info
             //And determine if the time object has been there long enough
@@ -328,6 +330,9 @@ module.exports = class TouchTracker {
                 point._touchObjectTracked = liftedObj;
                 liftedObj.x = point.x;
                 liftedObj.y = point.y;
+                liftedObj.radiusLong = closestUnlinked.radiusLong;
+                liftedObj.radiusShort = closestUnlinked.radiusShort;
+                liftedObj.rotationAngle = closestUnlinked.rotationAngle;
                 liftedObj.touchPoint = point;
                 liftedObj.speculative = false;
                 //Remove the lifted object from the array
@@ -541,6 +546,9 @@ module.exports = class TouchTracker {
                 var linkedObj = this._currentLiftedObjects[0];
                 linkedObj.speculativeX = point.x;
                 linkedObj.speculativeY = point.y;
+                linkedObj.radiusLong = point.radiusLong;
+                linkedObj.radiusShort = point.radiusShort;
+                linkedObj.rotationAngle = point.rotationAngle;
                 linkedObj.speculative = true;
                 linkedObj.lastSpeculativeMoveTime = Date.now();
                 this.onObjectSpeculativeMove(linkedObj, point.x, point.y);
@@ -574,6 +582,9 @@ module.exports = class TouchTracker {
                 if (trackedObj) {
                     trackedObj.speculativeX = touchObj.x;
                     trackedObj.speculativeY = touchObj.y;
+                    trackedObj.radiusLong = touchObj.radiusLong;
+                    trackedObj.radiusShort = touchObj.radiusShort;
+                    trackedObj.rotationAngle = touchObj.rotationAngle;
                     trackedObj.speculative = true;
                     trackedObj.lastSpeculativeMoveTime = Date.now();
                     //Call the speculative move handler
