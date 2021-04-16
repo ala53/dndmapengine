@@ -330,9 +330,9 @@ module.exports = class TouchTracker {
                 //with the new object that was just picked up
                 //We deliberately skip the timeout because we assume another object was picked up and it's 
                 //better to just link the touch at that point
-                point._touchObjectTracked = liftedObj;
-                liftedObj.x = point.x;
-                liftedObj.y = point.y;
+                closestUnlinked._touchObjectTracked = liftedObj;
+                liftedObj.x = closestUnlinked.x;
+                liftedObj.y = closestUnlinked.y;
                 liftedObj.radiusLong = closestUnlinked.radiusLong;
                 liftedObj.radiusShort = closestUnlinked.radiusShort;
                 liftedObj.rotationAngle = closestUnlinked.rotationAngle;

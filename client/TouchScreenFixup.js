@@ -138,6 +138,7 @@ module.exports =
                     point.radiusY = undefined;
                     point.identifier = undefined;
                     point.rotationAngle = undefined;
+                    point._srcPtId = undefined;
 
                 }
             }
