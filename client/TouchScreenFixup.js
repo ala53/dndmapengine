@@ -166,7 +166,6 @@ module.exports =
                 var dist = Math.sqrt((pt.pageX - x) ** 2 + (pt.pageY - y) ** 2);
 
                 if (!pt._hasTimedOut) continue;
-                console.log(dist);
                 if (dist < TouchScreenFixup._timeoutResumeMaxDistPx && dist < closest) {
                     closest = dist;
                     closestPt = pt;
