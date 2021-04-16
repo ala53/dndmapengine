@@ -238,7 +238,7 @@ module.exports = class TouchTracker {
             // (e.g. to the closest target deterministically, as sometimes it will
             //  run in the wrong order, leading to three points within range, but still too far away)
 
-            var hasAllTouchesTracked = this._matchMissingTouches(this._currentLiftedObjects, this._activeTouches);
+            var hasAllTouchesTracked = this._matchMissingTouches(this._currentLiftedObjects, unassignedPoints);
             for (const trackedObj of this._currentLiftedObjects) {
                 //Mark the object as not having a speculative target
                 trackedObj.speculative = false;
