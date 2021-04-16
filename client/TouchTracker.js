@@ -307,6 +307,9 @@ module.exports = class TouchTracker {
     _handleObjectLifted(touchPoint, trackedObj) {
         //Count liftoff as a move
         trackedObj.lastSpeculativeMoveTime = Date.now();
+        
+        trackedObj.touchPoint = null;
+        touchPoint._touchObjectTracked = null;
         //Keep track of it
         this._currentLiftedObjects.push(trackedObj);
         //Update the tracker state
@@ -617,6 +620,7 @@ module.exports = class TouchTracker {
                     touchObj._touchObjectTracked.touchPoint = null;
                     this._handleObjectLifted(touchObj, touchObj._touchObjectTracked);
                 }
+                touchObj._touchObjectTracked =null;
 
             } else {
                 throw "End event for untracked touch, ID: " + touches[i].identifier;
