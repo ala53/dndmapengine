@@ -21,8 +21,8 @@ module.exports = class WorldObjectHandler {
         this.worldManager.touchTracker.onObjectCreated = function(obj) {
             var object = new WorldObject();
             //Compute in grid space
-            object.x = Math.floor(obj.x / manager.viewport.tileWidthPx);
-            object.y = Math.floor(obj.y / manager.viewport.tileHeightPx);
+            object.x = Math.floor(obj.x / manager.viewport.tileWidthPx) + manager.viewport.left;
+            object.y = Math.floor(obj.y / manager.viewport.tileHeightPx) + manager.viewport.top;
             //Link back to the tracked object
             object.linkedObject = obj;
             object.active = true;
@@ -49,8 +49,8 @@ module.exports = class WorldObjectHandler {
             var object = worldObjectsKeyed[obj.id];
             if (!object) return; //No linked object
             //Compute position in grid space
-            object.x = Math.floor(obj.x / manager.viewport.tileWidthPx);
-            object.y = Math.floor(obj.y / manager.viewport.tileHeightPx);
+            object.x = Math.floor(obj.x / manager.viewport.tileWidthPx) + manager.viewport.left;
+            object.y = Math.floor(obj.y / manager.viewport.tileHeightPx) + manager.viewport.top;
         }
     }
 
