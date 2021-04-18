@@ -76,9 +76,10 @@ module.exports = class WorldManager {
      * 
      * @param {HTMLCanvasElement} canvasElement 
      */
-    constructor(canvasElement, uiElement) {
+    constructor(canvasElement, uiElement, map) {
         this.touchTracker = new TouchTracker();
         this.imageCache = new ImageCache();
+        this.map = map;
         this.canvas = canvasElement;
         this.context = canvasElement.getContext("2d");
         this.uiElement = uiElement;

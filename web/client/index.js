@@ -19,10 +19,13 @@ window.onload = () => {
     canvasElement.style.top = 0;
     canvasElement.style.left = 0;
 
-    //Initialize the renderer
-    worldManager = new WorldManager(canvasElement, uiElement);
-    //Start the render loop
-    requestAnimationFrame(renderLoop);
+    initMapChooser((map) => {
+        //Initialize the renderer
+        worldManager = new WorldManager(canvasElement, uiElement, map);
+        //Start the render loop
+        requestAnimationFrame(renderLoop);
+
+    });
 }
 
 //Resize the canvas on window resize

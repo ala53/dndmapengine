@@ -2,19 +2,24 @@
     <head>
         <script src="index.js"></script>
         <script src="uicontrols.js"></script>
+        <script src="mapchooser.js"></script>
         <link rel="stylesheet" href="css/milligram.css"/>
     </head>
     <body style="background-color: black;">
         <canvas id="renderArea" style="overflow:hidden"></canvas>
         <div id="UI" style="position:fixed;left:0;top:0"></div>
-        <div id="Controls" style="position:fixed;left:20;bottom:20">
+        <div id="Controls" style="position:fixed;left:20;bottom:5px">
             <button ontouchend="worldManager.viewport.left -= 1;" onmouseup="worldManager.viewport.left -= 1;">left</button>
             <button ontouchend="worldManager.viewport.left += 1;" onmouseup="worldManager.viewport.left += 1;">right</button>
             <button ontouchend="worldManager.viewport.top -= 1;" onmouseup="worldManager.viewport.top -= 1;">up</button>
             <button ontouchend="worldManager.viewport.top += 1;" onmouseup="worldManager.viewport.top += 1;">down</button>
-            <button ontouchend="worldManager.viewport.zoom *= 1.5;" onmouseup="worldManager.viewport.zoom *= 1.5;">zoom in</button>
-            <button ontouchend="worldManager.viewport.zoom /= 1.5;" onmouseup="worldManager.viewport.zoom /= 1.5;">zoom out</button>
-            <button style="margin-left: 100px" onmousedown="reloadBtnClickStart()" onmouseup="reloadBtnClickEnd()" ontouchstart="reloadBtnClickStart()" ontouchend="reloadBtnClickEnd()">reload</button>
+            <button ontouchend="worldManager.viewport.zoom *= 1.2;" onmouseup="worldManager.viewport.zoom *= 1.2;">zoom in</button>
+            <button ontouchend="worldManager.viewport.zoom /= 1.2;" onmouseup="worldManager.viewport.zoom /= 1.2;">zoom out</button>
+            <button ontouchend="uiZoomToFit();" onmouseup="uiZoomToFit();">zoom to fit</button>
+            <button style="margin-left: 100px" onmousedown="uiReloadBtnClickStart()" onmouseup="uiReloadBtnClickEnd()" ontouchstart="reloadBtnClickStart()" ontouchend="reloadBtnClickEnd()">reload</button>
+        </div>
+        <div id="mapchooser" style="background-color: black;position: fixed;left:0;right:0; top:0; bottom:0;">
+            <div id="mapchooserinternal" style="position:absolute;left:10%;top:10%;bottom:10%;right:10%;overflow-y:scroll !important;"></div>
         </div>
     </body>
 </html>

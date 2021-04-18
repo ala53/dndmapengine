@@ -3,7 +3,7 @@ const WorldManager = require("../WorldManager");
 
 module.exports = class FogOfWarRenderer {
     static fogOfWarHiddenColor = "rgba(0,0,0,0.95)";
-    static fogOfWarUncoveredColor = "rgba(0.5,0.5,0.5,0.6)";
+    static fogOfWarUncoveredColor = "rgba(40,40,40,0.6)";
     /**
      * 
      * @type {WorldManager}
@@ -14,8 +14,8 @@ module.exports = class FogOfWarRenderer {
 
         //Check if the map is in daylight
         if (this.worldManager.map.daylight) {
-            FogOfWarRenderer.fogOfWarHiddenColor = "rgba(0,0,0,0.15)";
-            FogOfWarRenderer.fogOfWarUncoveredColor = "rgba(0.5,0.5,0.5.0.1)";
+            FogOfWarRenderer.fogOfWarHiddenColor = "rgba(0,0,0,0.2)";
+            FogOfWarRenderer.fogOfWarUncoveredColor = "rgba(127,127,127,0.1)";
         }
     }
 

@@ -27,6 +27,14 @@ module.exports = {
             start: { x: 5, y: 6 }
         },
         {
+            name: "Volcano Lower",
+            backgroundImage: "volcano_lower.jpg",
+            daylight: true,
+            width: 50,
+            height: 36,
+            start: { x: 5, y: 18 }
+        },
+        {
             name: "Campfire By River",
             backgroundImage: "campfire_by_river.jpeg",
             daylight: false,
@@ -49,7 +57,55 @@ module.exports = {
             width: 70,
             height: 70,
             start: { x: 15, y: 35 }
-        }
+        },
+        {
+            name: "Medusa's Wake",
+            backgroundImage: "medusa_wake.jpg",
+            daylight: true,
+            width: 32,
+            height: 47,
+            start: { x: 5, y: 42 }
+        },
+        {
+            name: "Cradle of the Giant",
+            backgroundImage: "cradle_of_giant.jpg",
+            daylight: true,
+            width: 35,
+            height: 40,
+            start: { x: 18, y: 40 }
+        },
+        {
+            name: "Fallen Goddess",
+            backgroundImage: "fallen_goddess.jpg",
+            daylight: true,
+            width: 25,
+            height: 50,
+            start: { x: 12, y: 25 }
+        },
+        {
+            name: "Northern Land of Giants",
+            backgroundImage: "north_land_of_giants.jpg",
+            daylight: true,
+            width: 27,
+            height: 17,
+            start: { x: 3, y: 12 }
+        },
+        {
+            name: "Docks",
+            backgroundImage: "docks.jpg",
+            daylight: false,
+            width: 50,
+            height: 70,
+            start: { x: 25, y: 5 }
+        },
+        {
+            name: "Cave Entrance",
+            backgroundImage: "cave_entrance.jpg",
+            daylight: true,
+            width: 22,
+            height: 17,
+            start: { x: 11, y: 17 }
+        },
     ],
     tileEffects: [
         {

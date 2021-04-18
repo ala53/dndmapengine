@@ -25,7 +25,7 @@ module.exports = class GridlineRenderer {
         //Draw the vertical lines
         for (var x = startX; x < Math.min(viewport.right, this.worldManager.map.width); x++) {
             //Every 5 lines make a bold one
-            if (x % 5 == 0) ctx.lineWidth = 2;
+            if (x % 5 == 0) ctx.lineWidth = 3;
             else ctx.lineWidth = 1;
 
             var xOffsetPx = (x - viewport.left) * viewport.tileWidthPx;
@@ -37,7 +37,7 @@ module.exports = class GridlineRenderer {
         //Draw the horizontal lines
         for (var y = startY; y < Math.min(viewport.bottom, this.worldManager.map.height); y++) {
             //Every 5 lines make a bold one
-            if (y % 5 == 0) ctx.lineWidth = 2;
+            if (y % 5 == 0) ctx.lineWidth = 3;
             else ctx.lineWidth = 1;
 
             var yOffsetPx = (y - viewport.top) * viewport.tileHeightPx;
