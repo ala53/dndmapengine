@@ -1,4 +1,5 @@
 var _reloadTimeClicked = 0;
+var _closeTimeClicked = 0;
 
 function uiReloadBtnClickStart() {
     _reloadTimeClicked = Date.now();
@@ -7,6 +8,14 @@ function uiReloadBtnClickStart() {
 function uiReloadBtnClickEnd() {
     if (Date.now() - _reloadTimeClicked > 1000)
         location.reload();
+}
+function uiCloseBtnClickStart() {
+    _closeTimeClicked = Date.now();
+}
+
+function uiCloseBtnClickEnd() {
+    if (Date.now() - _closeTimeClicked > 2000)
+        window.close();
 }
 
 function uiZoomToFit() {
