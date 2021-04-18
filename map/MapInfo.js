@@ -41,6 +41,14 @@ module.exports = {
             width: 40,
             height: 40,
             start: { x: 18, y: 40-20 }
+        },
+        {
+            name: "Fort in Trees",
+            backgroundImage: "fort_in_trees.jpeg",
+            daylight: true,
+            width: 70,
+            height: 70,
+            start: { x: 15, y: 35 }
         }
     ],
     tileEffects: [

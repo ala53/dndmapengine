@@ -192,5 +192,9 @@ module.exports = class FogOfWarRenderer {
             tile._neighborFowState = 4; //Paint diagonally covering bottom right
     }
 
+    //Determines if a point lies within a triangle of 3 dimensions
+    _determineIfPointInTriangle(point, t1, t2, t3) {
+
+    }
 
 }

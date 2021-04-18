@@ -49,10 +49,10 @@ class TrackedTouchObject {
 module.exports = class TouchTracker {
     //How many ms to wait before deleting a single missing object and returning to normal mode
     //when only one is lifted
-    static msToWaitBeforeDeletingMissingObject = 30000;
+    static msToWaitBeforeDeletingMissingObject = 5000;
     //How many ms to wait before deleting objects and returning to normal mode
     //when multiple objects are lifted
-    static msToWaitBeforeResettingTrackingLoss = 60000;
+    static msToWaitBeforeResettingTrackingLoss = 7500;
     //How many ms to wait before tracking a new object placed on the board
     static msToWaitBeforeStartTracking = 1500;
     //How many milliseconds to wait when an object is set back on the board before 

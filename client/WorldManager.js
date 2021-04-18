@@ -21,7 +21,9 @@ class WorldViewport {
 
 
     get zoom() { return this._zoom; }
-    set zoom(value) { if (value < 0.10) value = 0.10; if (value > 10) value = 10; this._zoom = value; }
+    set zoom(value) {
+        this._zoom = value;
+    }
 
     get left() { return this._left; }
     set left(value) { if (value < 0) value = 0; this._left = value; }
@@ -63,7 +65,7 @@ module.exports = class WorldManager {
     uiRenderer;
 
     tileGrid;
-    map = MapInfo.maps[2];
+    map = MapInfo.maps[5];
     worldObjectHandler;
 
     imageCache;
@@ -151,6 +153,7 @@ module.exports = class WorldManager {
             canvasWidth *= (1 - UIRenderer.uiWidthPercent);
             screenWidthForCanvas *= (1 - UIRenderer.uiWidthPercent);
         }
+
         //Recompute the viewport
         //At default zoom, equal to 1 inch width
         this.viewport.tileWidthPx = (canvasWidth / screenWidthForCanvas) * this.viewport.zoom;

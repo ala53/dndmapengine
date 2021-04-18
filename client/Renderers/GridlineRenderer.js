@@ -16,8 +16,8 @@ module.exports = class GridlineRenderer {
         var viewport = this.worldManager.viewport;
         var startX = Math.floor(viewport.left) + 1; // Start one tile from the left
         var startY = Math.floor(viewport.top) + 1; // Start one tile from the top
-        var widthPx = Math.min(this.worldManager.map.width * viewport.tileWidthPx, viewport.widthPx);
-        var heightPx = Math.min(this.worldManager.map.height * viewport.tileHeightPx, viewport.heightPx);
+        var widthPx = Math.min((this.worldManager.map.width - viewport.left) * viewport.tileWidthPx, viewport.widthPx);
+        var heightPx = Math.min((this.worldManager.map.height - viewport.top) * viewport.tileHeightPx, viewport.heightPx);
 
         ctx.strokeStyle = GridlineRenderer.gridlineColor;
         ctx.fillStyle = null;
