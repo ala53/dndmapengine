@@ -120,7 +120,7 @@ module.exports =
                 var point = this._findLinked(touches[i].identifier);
                 //Handle timeouts internally
                 if (Date.now() - point._lastMove > TouchScreenFixup._touchTimeout &&
-                 Date.now() - point._createTime > TouchScreenFixup._timeoutMinExistTime) {
+                 Date.now() - point._createTime > TouchScreenFixup._timeoutMinExistTime && false) {
                     //Timed out
                     point._hasTimedOut = true;
                     point._srcPtId = null;

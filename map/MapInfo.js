@@ -37,7 +37,7 @@ module.exports = {
         {
             name: "Campfire By River",
             backgroundImage: "campfire_by_river.jpeg",
-            daylight: false,
+            daylight: true,
             width: 40,
             height: 40,
             start: { x: 20, y: 40-8 }
@@ -45,7 +45,7 @@ module.exports = {
         {
             name: "Campfire In Forest",
             backgroundImage: "campfire_forest.jpeg",
-            daylight: false,
+            daylight: true,
             width: 40,
             height: 40,
             start: { x: 18, y: 40-20 }

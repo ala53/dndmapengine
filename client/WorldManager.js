@@ -26,13 +26,13 @@ class WorldViewport {
     }
 
     get left() { return this._left; }
-    set left(value) { if (value < 0) value = 0; this._left = value; }
+    set left(value) { if (value < 0) value = 0; this._left = Math.floor(value); }
 
     get right() { return this.left + this.width; }
     set right(value) { this.left = value - this.width; }
 
     get top() { return this._top; }
-    set top(value) { if (value < 0) value = 0; this._top = value; }
+    set top(value) { if (value < 0) value = 0; this._top = Math.floor(value); }
 
     get bottom() { return this.top + this.height; }
     set bottom(value) { this.top = value - this.height; }
