@@ -8,6 +8,13 @@ module.exports = {
             start: {x: 24, y: 30}
         },
         {
+            name: "Peninsula",
+            backgroundImage: "peninsula.png",
+            width: 20,
+            height: 20,
+            start: {x: 0, y: 0}
+        },
+        {
             name: "Forest (Exploration)",
             backgroundImage: "forest_exploration.png",
             daylight: true,
